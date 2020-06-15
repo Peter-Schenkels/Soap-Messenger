@@ -10,10 +10,11 @@
     Title="Jerkel Messenger" Height="805.714" Width="471.999"
     MinHeight="250"
     MinWidth="250"
-
-    
+    AllowDrop="True"
+    Drop="AdonisWindow_Drop"
+    Loaded="MainWindow_Loaded"
+    Closing="AdonisWindow_Closing"
     >
-
 
     <Window.Style>
         <Style TargetType="Window" BasedOn="{StaticResource {x:Type Window}}"/>
@@ -61,7 +62,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBox x:Name="messageBox" Grid.Column="0"/>
-            <Button Grid.Column="2" Content="Send"  />
+            <Button Grid.Column="2" Content="Send" Click="Button_Click"  />
         </Grid>
     </Grid>
 </adonisControls:AdonisWindow>
