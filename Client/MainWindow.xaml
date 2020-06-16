@@ -4,58 +4,53 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:local="clr-namespace:Client"
     xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     mc:Ignorable="d"
-    Title="Jerkel Messenger" Height="805.714" Width="471.999"
+    Title="Jerkel Messenger" Height="600" Width="400"
     MinHeight="250"
     MinWidth="250"
     AllowDrop="True"
     Drop="AdonisWindow_Drop"
     Loaded="MainWindow_Loaded"
     Closing="AdonisWindow_Closing"
-    KeyDown="AdonisWindow_KeyDown"
-    >
+    KeyDown="AdonisWindow_KeyDown">
 
     <Window.Style>
         <Style TargetType="Window" BasedOn="{StaticResource {x:Type Window}}"/>
     </Window.Style>
 
-    <Grid Margin="0,0,4.429,0.143">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="124*"/>
-            <ColumnDefinition Width="48*"/>
-            <ColumnDefinition Width="257*"/>
-        </Grid.ColumnDefinitions>
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="10,10,10.143,10.143" Grid.ColumnSpan="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-        </Grid>
-
-        <ListBox x:Name="chatbox" AllowDrop ="True" Margin="10,25,9.714,19.571" Grid.ColumnSpan="3" Grid.RowSpan="2">
+        <ListBox AllowDrop ="True" Margin="10" ItemsSource="{Binding Messages}">
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Clear"  />
+                    <MenuItem Header="Clear" />
                 </ContextMenu>
             </ListBox.ContextMenu>
+
+            <ListBox.Resources>
+                <DataTemplate DataType="{x:Type local:StringMessage}">
+                    <TextBlock Text="{Binding Message}"/>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type local:CommandMessage}">
+                    <TextBlock Text="{Binding}" Foreground="Gray"/>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type local:ImageMessage}">
+                    <Image MaxWidth="200" MaxHeight="200" Source="{Binding Image}"
+                           RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                </DataTemplate>
+            </ListBox.Resources>
         </ListBox>
 
-        <Grid Grid.Row="2" Margin="10,10.143,10.143,9.857" Grid.ColumnSpan="3">
+        <Grid Grid.Row="1" Margin="10,0,10,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>

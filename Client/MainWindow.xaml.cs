@@ -1,5 +1,6 @@
 ﻿using AdonisUI.Controls;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -16,17 +17,19 @@ namespace Client
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
         /// 
-        private MessageClient client = new MessageClient();
+        private MessageClient client;
 
         public MainWindow()
         {
             InitializeComponent();
+            var vm = new MainWindowViewModel();
+            DataContext = vm;
+            client = new MessageClient(vm);
         }
 
         private void MainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             Console.WriteLine("Start Connection");
-            client.chatbox = chatbox;
             Thread thread = new Thread(StartConnection);
             thread.Start();
         }
@@ -75,18 +78,15 @@ namespace Client
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
                 foreach(var file in files)
                 {
                     BitmapImage image = new BitmapImage();
                     image.BeginInit();
                     image.UriSource = new Uri(file);
-                    image.DecodePixelWidth = 250;
                     image.EndInit();
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        ImageMessage message = new ImageMessage(image);
-                        client.Send(message);
-                    });
+                    image.Freeze();
+                    client.Send(new ImageMessage(image));
                 }
             }
         }

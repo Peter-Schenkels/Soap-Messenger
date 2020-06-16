@@ -7,18 +7,17 @@ using System.Windows.Media.Imaging;
 
 namespace Client
 {
-
     public class Command
     {
         /// <summary>
         /// Defines the setUserName, clear, setIp, help..
         /// </summary>
         public const string
-            setUserName = "/setusername",
-            clear = "/clear",
-            setIp = "/setip",
-            help = "/help",
-            unknownCommand = "?";
+            SetUserName = "/setusername",
+            Clear = "/clear",
+            SetIp = "/setip",
+            Help = "/help",
+            UnknownCommand = "?";
     }
     public enum MessageType : byte
     {
@@ -59,34 +58,36 @@ namespace Client
 
     public class CommandMessage : IMessage
     {
-        public string[] parameters { get; }
+        public List<string> Parameters { get; }
 
-        public CommandMessage(string Message)
+        public CommandMessage(string parameters)
         {
-            parameters = Message.Split(' ');   
+            Parameters = parameters.Split(' ').ToList();   
         }
         public byte[] GetBytes()
         {
             string Message = "";
-            foreach(string parameter in parameters)
+            foreach(string parameter in Parameters)
             {
                 Message += " " + parameter;
             }
-            byte[] strBuffer = Encoding.UTF8.GetBytes(Message);
+            byte[] strBuffer = Encoding.UTF32.GetBytes(Message);
             byte[] buffer = new byte[strBuffer.Length + 1];
             buffer[0] = (byte)MessageType.Command;
             Array.Copy(strBuffer, 0, buffer, 1, strBuffer.Length);
             return buffer;
         }
 
-        public static StringMessage ParseData(byte[] buffer)
+        public static CommandMessage ParseData(byte[] buffer)
         {
-            var message = Encoding.UTF32.GetString(buffer);
-            return new StringMessage(message);
+            var parameters = Encoding.UTF32.GetString(buffer);
+            return new CommandMessage(parameters);
         }
 
-
-
+        public override string ToString()
+        {
+            return string.Join(" ", Parameters);
+        }
     }
 
     public class ImageMessage : IMessage
