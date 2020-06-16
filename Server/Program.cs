@@ -71,7 +71,6 @@
                 disconnect();
             }
         }
-
         /// <summary>
         /// The Broadcast.
         /// </summary>
@@ -86,6 +85,7 @@
             {
                 disconnect();
             }
+            Console.WriteLine("Hidden line");
         }
 
         /// <summary>
