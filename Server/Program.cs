@@ -85,7 +85,7 @@
             {
                 disconnect();
             }
-            Console.WriteLine("Daan e secret");
+            Console.WriteLine("Daan secret");
         }
 
         /// <summary>
