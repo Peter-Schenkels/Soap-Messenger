@@ -3,6 +3,10 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace Client
 {
@@ -22,6 +26,7 @@ namespace Client
         private void MainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             Console.WriteLine("Start Connection");
+            client.chatbox = chatbox;
             Thread thread = new Thread(StartConnection);
             thread.Start();
         }
@@ -42,26 +47,63 @@ namespace Client
                 }
             }
         }
-
-        private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void send()
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                StringMessage message = new StringMessage(messageBox.Text);
-                client.Send(message);
+                if(messageBox.Text.Length < 255 && messageBox.Text.Length > 0)
+                    if (messageBox.Text[0] != '/')
+                    {
+                        StringMessage message = new StringMessage(messageBox.Text);
+                        client.Send(message);
+                    }
+                    else
+                    {
+                        CommandMessage message = new CommandMessage(messageBox.Text);
+                        client.Send(message);
+                    }
+                    messageBox.Text = "";
             });
+        }
+        private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            send();
         }
 
         private void AdonisWindow_Drop(object sender, System.Windows.DragEventArgs e)
         {
-
-            throw new NotImplementedException();
-
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                foreach(var file in files)
+                {
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.UriSource = new Uri(file);
+                    image.DecodePixelWidth = 250;
+                    image.EndInit();
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        ImageMessage message = new ImageMessage(image);
+                        client.Send(message);
+                    });
+                }
+            }
         }
 
         private void AdonisWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             client.Disconnect();
+        }
+
+        private void AdonisWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && messageBox.Text != "")
+            {
+                //execute go button method
+                send();
+
+            }
         }
     }
 }

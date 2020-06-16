@@ -94,7 +94,6 @@
         /// <param name="message">The message<see cref="byte[]"/>.</param>
         private void BroadcastImplementation(byte[] message)
         {
-
             try
             {
                 socket.Send(message, 0, message.Length, 0);
@@ -111,7 +110,7 @@
         /// </summary>
         private void RecieveImplementation()
         {
-            byte[] buffer = new byte[1000000];
+            byte[] buffer = new byte[10_000_000];
             try
             {
                 Console.WriteLine("Waiting for a message from client:" + name);
@@ -176,7 +175,7 @@
         /// <summary>
         /// Defines the buffer.
         /// </summary>
-        public byte[] buffer = new byte[1000000];
+        public byte[] buffer = new byte[10_000_000];
 
         /// <summary>
         /// The bindSocket.

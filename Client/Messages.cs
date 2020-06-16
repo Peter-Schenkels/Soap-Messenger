@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -6,10 +7,24 @@ using System.Windows.Media.Imaging;
 
 namespace Client
 {
+
+    public class Command
+    {
+        /// <summary>
+        /// Defines the setUserName, clear, setIp, help..
+        /// </summary>
+        public const string
+            setUserName = "/setusername",
+            clear = "/clear",
+            setIp = "/setip",
+            help = "/help",
+            unknownCommand = "?";
+    }
     public enum MessageType : byte
     {
         Image = (byte)'i',
-        String = (byte)'s'
+        String = (byte)'s',
+        Command = (byte)'c'
     }
 
     public interface IMessage
@@ -28,7 +43,7 @@ namespace Client
 
         public byte[] GetBytes()
         {
-            byte[] strBuffer = Encoding.UTF8.GetBytes(Message);
+            byte[] strBuffer = Encoding.UTF32.GetBytes(Message);
             byte[] buffer = new byte[strBuffer.Length + 1];
             buffer[0] = (byte)MessageType.String;
             Array.Copy(strBuffer, 0, buffer, 1, strBuffer.Length);
@@ -37,9 +52,41 @@ namespace Client
 
         public static StringMessage ParseData(byte[] buffer)
         {
-            var message = Encoding.UTF8.GetString(buffer);
+            var message = Encoding.UTF32.GetString(buffer);
             return new StringMessage(message);
         }
+    }
+
+    public class CommandMessage : IMessage
+    {
+        public string[] parameters { get; }
+
+        public CommandMessage(string Message)
+        {
+            parameters = Message.Split(' ');   
+        }
+        public byte[] GetBytes()
+        {
+            string Message = "";
+            foreach(string parameter in parameters)
+            {
+                Message += " " + parameter;
+            }
+            byte[] strBuffer = Encoding.UTF8.GetBytes(Message);
+            byte[] buffer = new byte[strBuffer.Length + 1];
+            buffer[0] = (byte)MessageType.Command;
+            Array.Copy(strBuffer, 0, buffer, 1, strBuffer.Length);
+            return buffer;
+        }
+
+        public static StringMessage ParseData(byte[] buffer)
+        {
+            var message = Encoding.UTF32.GetString(buffer);
+            return new StringMessage(message);
+        }
+
+
+
     }
 
     public class ImageMessage : IMessage
@@ -61,7 +108,10 @@ namespace Client
                 encoder.Save(ms);
                 data = ms.ToArray();
             }
-            return data;
+            byte[] buffer = new byte[data.Length + 1];
+            buffer[0] = (byte)MessageType.Image;
+            Array.Copy(data, 0, buffer, 1, data.Length);
+            return buffer;
         }
 
         public static ImageMessage ParseData(byte[] buffer)
@@ -78,9 +128,8 @@ namespace Client
                 image.UriSource = null;
                 image.StreamSource = ms;
                 image.EndInit();
-                image.Freeze();
             }
-
+            image.Freeze();
             return new ImageMessage(image);
         }
     }
