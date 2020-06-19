@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,18 +14,21 @@ namespace Client
 {
     public partial class MainWindow : AdonisWindow
     {
+        public MainWindowViewModel ViewModel { get; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
         /// 
         private MessageClient client;
+        public string Username { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            var vm = new MainWindowViewModel();
-            DataContext = vm;
-            client = new MessageClient(vm);
+            ViewModel = new MainWindowViewModel();
+            DataContext = ViewModel;
+            client = new MessageClient(ViewModel);
         }
 
         private void MainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
@@ -57,19 +61,21 @@ namespace Client
                 if(messageBox.Text.Length < 255 && messageBox.Text.Length > 0)
                     if (messageBox.Text[0] != '/')
                     {
-                        StringMessage message = new StringMessage(messageBox.Text);
+                        StringMessage message = new StringMessage(messageBox.Text, client.prefix);
                         client.Send(message);
                     }
                     else
                     {
-                        CommandMessage message = new CommandMessage(messageBox.Text);
+                        CommandMessage message = new CommandMessage(messageBox.Text, client.prefix);
                         client.Send(message);
                     }
-                    messageBox.Text = "";
+                messageBox.Text = "";
             });
         }
         private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+    
+            Console.WriteLine(Command.IsCommand("/setusername"));
             send();
         }
 
@@ -86,7 +92,8 @@ namespace Client
                     image.UriSource = new Uri(file);
                     image.EndInit();
                     image.Freeze();
-                    client.Send(new ImageMessage(image));
+                    client.Send(new ImageMessage(image, Username));
+                    client.canSend = true;
                 }
             }
         }
@@ -104,6 +111,11 @@ namespace Client
                 send();
 
             }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Messages.Clear();
         }
     }
 }

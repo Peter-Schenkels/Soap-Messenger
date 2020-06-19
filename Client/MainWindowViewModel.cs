@@ -8,8 +8,6 @@ namespace Client
 
         public MainWindowViewModel()
         {
-            Messages.Add(new StringMessage("jrkel"));
-            Messages.Add(new CommandMessage("jrkel is een ebwe"));
         }
     }
 }

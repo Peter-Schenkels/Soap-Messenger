@@ -30,13 +30,16 @@
         <ListBox AllowDrop ="True" Margin="10" ItemsSource="{Binding Messages}">
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Clear" />
+                    <MenuItem Header="Clear" Click="MenuItem_Click"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
 
             <ListBox.Resources>
                 <DataTemplate DataType="{x:Type local:StringMessage}">
-                    <TextBlock Text="{Binding Message}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Username}" Foreground="{Binding ColorCode}" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding Message}"/>
+                    </StackPanel>
                 </DataTemplate>
 
                 <DataTemplate DataType="{x:Type local:CommandMessage}">
@@ -44,8 +47,11 @@
                 </DataTemplate>
 
                 <DataTemplate DataType="{x:Type local:ImageMessage}">
-                    <Image MaxWidth="200" MaxHeight="200" Source="{Binding Image}"
+                    <StackPanel>
+                        <TextBlock Text="{Binding Username}" Foreground="#ff0000" Margin="0,0,10,0"/>
+                        <Image MaxWidth="200" MaxHeight="200" Source="{Binding Image}"
                            RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.Resources>
         </ListBox>

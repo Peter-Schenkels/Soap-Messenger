@@ -15,11 +15,11 @@ namespace Client
         private MainWindowViewModel ViewModel { get; }
 
         private Socket socket;
-        //private string ServerIP = "127.0.0.1";
-        private string ServerIP = "2.56.212.56";
+        private string ServerIP = "127.0.0.1";
+        //private string ServerIP = "2.56.212.56";
         private int port = 1998;
         private const int MAX_MESSAGE_BYTES = 10_000_000;
-        private string prefix = "User";
+        public string prefix { get; set; } = "User";
         public bool canSend = true;
 
         public MessageClient(MainWindowViewModel vm)
@@ -90,14 +90,22 @@ namespace Client
 
         private void SendImplementation(byte[] buffer)
         {
-            if (canSend)
+            try
             {
-                socket.Send(buffer, 0, buffer.Length, 0);
-                canSend = false;
-                Thread canSendThread = new Thread(CantSend);
-                canSendThread.Start();
+                if (canSend)
+                {
+                    socket.Send(buffer, 0, buffer.Length, 0);
+                    canSend = false;
+                    Thread canSendThread = new Thread(CantSend);
+                    canSendThread.Start();
+
+                }
+            }
+            catch
+            {
 
             }
+
 
         }
 
@@ -117,46 +125,50 @@ namespace Client
             byte[] contentBuffer = new byte[received - 1];
             MessageType messageType = (MessageType)recvBuffer[0];
             Array.Copy(recvBuffer, 1, contentBuffer, 0, contentBuffer.Length);
-            Console.WriteLine(messageType);
+
 
             IMessage message = messageType switch
             {
                 MessageType.String => StringMessage.ParseData(contentBuffer),
                 MessageType.Image => ImageMessage.ParseData(contentBuffer),
                 MessageType.Command => CommandMessage.ParseData(contentBuffer),
+                
                 // default
                 _ => throw new Exception("Unrecognized message!")
             };
-
             Application.Current.Dispatcher.Invoke(() => ViewModel.Messages.Add(message));
+            if (message is CommandMessage msg) 
+            {
+                checkCommand(msg);
+            }
         }
 
-        private void checkCommand(List<string> tokens)
+        private void checkCommand(CommandMessage message)
         {
-            //switch (tokens[0])
-            //{
-            //    case (string)Command.SetUserName:
-            //        prefix = tokens[1];
-            //        chatbox.Items.Insert(0, "New username: " + prefix);
-            //        break;
+            message.commandType = message.Parameters[1];
+            switch (message.commandType)
+            {
+                case Command.SetUserName:
+                    prefix = message.Parameters[2];
+                    break;
 
-            //    case (string)Command.Clear:
-            //        chatbox.Items.Clear();
-            //        break;
+                case (string)Command.Clear:
+                    Application.Current.Dispatcher.Invoke(() => ViewModel.Messages.Clear());
+                    break;
 
-            //    case (string)Command.SetIp:
-            //        ServerIP = tokens[1];
-            //        chatbox.Items.Insert(0, "New ip address: " + ServerIP);
-            //        break;
+                case Command.SetIp:
+                  
+                    break;
 
-            //    case (string)Command.Help:
+                case Command.Help:
 
-            //        break;
+                    break;
 
-            //    default:
-            //        chatbox.Items.Insert(0, "unknown command: " + tokens[0]);
-            //        break;
-            //}
+                default:
+                    StringMessage stringMessage = new StringMessage("Uknown command", "Client");
+                    Application.Current.Dispatcher.Invoke(() => ViewModel.Messages.Clear());
+                    break;
+            }
         }
 
 
