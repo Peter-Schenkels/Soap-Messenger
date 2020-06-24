@@ -1,6 +1,10 @@
 ﻿using AdonisUI.Controls;
+using Imgur.API.Authentication.Impl;
+using Imgur.API.Endpoints.Impl;
+using Imgur.API.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -104,12 +108,8 @@ namespace Client
 
                 foreach(var file in files)
                 {
-                    BitmapImage image = new BitmapImage();
-                    image.BeginInit();
-                    image.UriSource = new Uri(file);
-                    image.EndInit();
-                    image.Freeze();
-                    client.Send(new ImageMessage(image, Username));
+                    var source = UploadImage(file);
+                    client.Send(new ImageMessage(source, client.prefix, client.nameColor));
                     client.canSend = true;
                 }
             }
@@ -129,7 +129,19 @@ namespace Client
 
             }
         }
+        public string UploadImage(string source)
+        {
 
+            var client = new ImgurClient("3bfa9e553867a45");
+            var endpoint = new ImageEndpoint(client);
+            IImage image;
+            var fs = new FileStream(@source, FileMode.Open);
+            image = endpoint.UploadImageStreamAsync(fs).GetAwaiter().GetResult();
+            Console.WriteLine(image.Link);
+
+            return image.Link;
+
+        }
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.Messages.Clear();

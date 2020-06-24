@@ -1,11 +1,17 @@
 ﻿namespace Client
 {
+    using Imgur.API;
+    using Imgur.API.Authentication.Impl;
+    using Imgur.API.Endpoints.Impl;
+    using Imgur.API.Models;
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Windows.Media.Imaging;
 
     /// <summary>
@@ -14,7 +20,7 @@
     public class Command
     {
         /// <summary>
-        /// Defines the setUserName, clear, setIp, help...
+        /// Defines the setUserName, clear, setIp, help....
         /// </summary>
         public const string
             SetUserName = "/setusername",
@@ -54,12 +60,10 @@
         /// Defines the Image.
         /// </summary>
         Image = (byte)'i',
-
         /// <summary>
         /// Defines the String.
         /// </summary>
         String = (byte)'s',
-
         /// <summary>
         /// Defines the Command.
         /// </summary>
@@ -147,7 +151,6 @@
         public static StringMessage ParseData(byte[] buffer)
         {
             var message = Encoding.UTF32.GetString(buffer);
-
             return JsonConvert.DeserializeObject<StringMessage>(message);
         }
     }
@@ -231,22 +234,28 @@
         /// <summary>
         /// Gets or sets the Username.
         /// </summary>
-        public static string Username { get; set; } = "Peter Jenkels";
+        public string Username { get; } = "Peter Jenkels";
 
         /// <summary>
-        /// Gets the Image.
+        /// Gets or sets the source.
         /// </summary>
-        public BitmapImage Image { get; }
+        public string Source { get; }
 
+
+        public string Time { get; }
+
+
+        public string ColorCode { get; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageMessage"/> class.
         /// </summary>
-        /// <param name="image">The image<see cref="BitmapImage"/>.</param>
         /// <param name="username">The username<see cref="string"/>.</param>
-        public ImageMessage(BitmapImage image, string username)
+        public ImageMessage(string source, string username, string colorCode)
         {
-            Image = image;
             Username = username;
+            Source = source;
+            Time = DateTime.Now.ToString("h:mm tt");
+            ColorCode = colorCode;
         }
 
         /// <summary>
@@ -255,17 +264,11 @@
         /// <returns>The <see cref="byte[]"/>.</returns>
         public byte[] GetBytes()
         {
-            byte[] data;
-            PngBitmapEncoder encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(Image));
-            using (MemoryStream ms = new MemoryStream())
-            {
-                encoder.Save(ms);
-                data = ms.ToArray();
-            }
-            byte[] buffer = new byte[data.Length + 1];
+            string json = JsonConvert.SerializeObject(this);
+            byte[] strBuffer = Encoding.UTF32.GetBytes(json);
+            byte[] buffer = new byte[strBuffer.Length + 1];
             buffer[0] = (byte)MessageType.Image;
-            Array.Copy(data, 0, buffer, 1, data.Length);
+            Array.Copy(strBuffer, 0, buffer, 1, strBuffer.Length);
             return buffer;
         }
 
@@ -276,21 +279,8 @@
         /// <returns>The <see cref="ImageMessage"/>.</returns>
         public static ImageMessage ParseData(byte[] buffer)
         {
-            if (buffer == null || buffer.Length == 0)
-                return null;
-
-            var image = new BitmapImage();
-            using (var ms = new MemoryStream(buffer))
-            {
-                image.BeginInit();
-                image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.UriSource = null;
-                image.StreamSource = ms;
-                image.EndInit();
-            }
-            image.Freeze();
-            return new ImageMessage(image, Username);
+            var message = Encoding.UTF32.GetString(buffer);
+            return JsonConvert.DeserializeObject<ImageMessage>(message);
         }
     }
 }

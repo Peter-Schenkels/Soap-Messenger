@@ -56,8 +56,13 @@
 
                 <DataTemplate DataType="{x:Type local:ImageMessage}">
                     <StackPanel>
-                        <TextBlock Text="{Binding Username}" Foreground="#ff0000" Margin="0,0,10,0"/>
-                        <Image MaxWidth="200" MaxHeight="200" Source="{Binding Image}"
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Username}" FontWeight="Bold" Foreground="{Binding ColorCode}" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding Time}" Foreground="Gray" />
+                            </StackPanel>
+                            </StackPanel>
+                            <Image Source="{Binding Source}" MaxWidth="200" MaxHeight="200"
                            RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                     </StackPanel>
                 </DataTemplate>

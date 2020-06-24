@@ -1,6 +1,12 @@
 ﻿namespace Client
 {
+    using Imgur.API;
+    using Imgur.API.Authentication.Impl;
+    using Imgur.API.Endpoints.Impl;
+    using Imgur.API.Models;
     using System;
+    using System.Diagnostics;
+    using System.IO;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
@@ -238,7 +244,22 @@
                     break;
 
                 case Command.SetImage:
-                    profileSource = message.Parameters[2];
+                    try
+                    {
+                        var client = new ImgurClient("3bfa9e553867a45");
+                        var endpoint = new ImageEndpoint(client);
+                        IImage image;
+                        using (var fs = new FileStream(message.Parameters[2], FileMode.Open))
+                        {
+                            image = endpoint.UploadImageStreamAsync(fs).GetAwaiter().GetResult();
+                        }
+                        profileSource = image.Link;
+                        Console.WriteLine(image.Link);
+                    }
+                    catch (ImgurException imgurEx)
+                    {
+                        Debug.Write(imgurEx.Message);
+                    }     
                     break;
 
                 case Command.SetColor:
