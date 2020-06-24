@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -61,11 +62,27 @@ namespace Client
                 if(messageBox.Text.Length < 255 && messageBox.Text.Length > 0)
                     if (messageBox.Text[0] != '/')
                     {
-                        StringMessage message = new StringMessage(messageBox.Text, client.prefix);
+                        var chatMessage = new StringBuilder();
+                        int counter = 0;
+
+                        foreach(char letter in messageBox.Text)
+                        {
+                            counter++;
+                            if (counter % 50 == 0)
+                            {
+                                chatMessage.Append("\n");
+                                Console.WriteLine(letter);
+                                counter = 0;
+                            }                            
+                            chatMessage.Append(letter);
+                        }
+
+                        StringMessage message = new StringMessage(chatMessage.ToString(), client.prefix, client.profileSource, client.nameColor);
                         client.Send(message);
                     }
                     else
                     {
+                        client.sendCommand = true;
                         CommandMessage message = new CommandMessage(messageBox.Text, client.prefix);
                         client.Send(message);
                     }

@@ -8,14 +8,16 @@
     xmlns:local="clr-namespace:Client"
     xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     mc:Ignorable="d"
-    Title="Jerkel Messenger" Height="600" Width="400"
+    Title="Soap" Height="600" Width="400"
     MinHeight="250"
     MinWidth="250"
-    AllowDrop="True"
+    AllowDrop="False"
     Drop="AdonisWindow_Drop"
     Loaded="MainWindow_Loaded"
     Closing="AdonisWindow_Closing"
-    KeyDown="AdonisWindow_KeyDown">
+    KeyDown="AdonisWindow_KeyDown"
+
+    >
 
     <Window.Style>
         <Style TargetType="Window" BasedOn="{StaticResource {x:Type Window}}"/>
@@ -37,7 +39,7 @@
             <ListBox.Resources>
                 <DataTemplate DataType="{x:Type local:StringMessage}">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Source}" Height="35" Margin="0,0,7,0"></Image>
+                        <Image Source="{Binding Profile}" Height="35" Margin="0,0,7,0"></Image>
                         <StackPanel Orientation="Vertical">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding Username}" FontWeight="Bold" Foreground="{Binding ColorCode}" Margin="0,0,7,0"/>
