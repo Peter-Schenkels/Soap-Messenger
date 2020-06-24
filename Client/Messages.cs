@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
 namespace Client
@@ -19,6 +20,7 @@ namespace Client
             Clear = "/clear",
             SetIp = "/setip",
             Help = "/help",
+            SetImage = "/setimage",
             UnknownCommand = "?";
 
         public static String IsCommand(string token)
@@ -51,13 +53,17 @@ namespace Client
     public class StringMessage : IMessage
     {
         public string ColorCode { get; } = "#FF0000";
-        public string Username { get; } = "User";
+        public string Username { get; }
         public string Message { get; }
-
+        public string Time { get; }
+        public string profile { get; } = @"C:\Users\Peter Sjenkels\Desktop\bestanden\banner.png";
         public StringMessage(string message, string username)
         {
             Message = message;
             Username = username;
+            Time = DateTime.Now.ToString("h:mm tt");
+
+            
         }
 
         public byte[] GetBytes()

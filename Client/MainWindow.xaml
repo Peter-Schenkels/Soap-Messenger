@@ -37,8 +37,14 @@
             <ListBox.Resources>
                 <DataTemplate DataType="{x:Type local:StringMessage}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Username}" Foreground="{Binding ColorCode}" Margin="0,0,10,0"/>
-                        <TextBlock Text="{Binding Message}"/>
+                        <Image Source="{Binding Source}" Height="35" Margin="0,0,7,0"></Image>
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Username}" FontWeight="Bold" Foreground="{Binding ColorCode}" Margin="0,0,7,0"/>
+                                <TextBlock Text="{Binding Time}" Foreground="Gray" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding Message}"/>
+                        </StackPanel>
                     </StackPanel>
                 </DataTemplate>
 

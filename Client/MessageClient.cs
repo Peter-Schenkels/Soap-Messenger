@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace Client
 {
@@ -15,11 +16,12 @@ namespace Client
         private MainWindowViewModel ViewModel { get; }
 
         private Socket socket;
-        private string ServerIP = "127.0.0.1";
-        //private string ServerIP = "2.56.212.56";
+        //private string ServerIP = "127.0.0.1";
+        private string ServerIP = "2.56.212.56";
         private int port = 1998;
         private const int MAX_MESSAGE_BYTES = 10_000_000;
         public string prefix { get; set; } = "User";
+        public BitmapImage profileSource { get; set; } = new BitmapImage();
         public bool canSend = true;
 
         public MessageClient(MainWindowViewModel vm)
@@ -126,7 +128,6 @@ namespace Client
             MessageType messageType = (MessageType)recvBuffer[0];
             Array.Copy(recvBuffer, 1, contentBuffer, 0, contentBuffer.Length);
 
-
             IMessage message = messageType switch
             {
                 MessageType.String => StringMessage.ParseData(contentBuffer),
@@ -162,6 +163,12 @@ namespace Client
 
                 case Command.Help:
 
+                    break;
+
+                case Command.SetImage:
+                    profileSource.BeginInit();
+                    profileSource.UriSource = new Uri(message.Parameters[1]);
+                    profileSource.EndInit();
                     break;
 
                 default:
