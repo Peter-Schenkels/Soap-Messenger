@@ -263,7 +263,8 @@
                     break;
 
                 case Command.SetColor:
-                    nameColor = message.Parameters[2];
+                    if(message.Parameters.Count > 2)
+                        nameColor = message.Parameters[2];
                     break;
 
                 default:
